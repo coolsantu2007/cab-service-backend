@@ -1,6 +1,9 @@
 const adminUserModel = require('../model/adminUserModel');
 const Helper = require('../configuration/helper');
 const { validationResult } = require("express-validator");
+const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = process.env.JWT_SECRET;
 const bcrypt = require('bcryptjs');
 
 module.exports = {
@@ -55,13 +58,14 @@ module.exports = {
                 bcrypt.compare(password, savedUser.Password)
                     .then(doMatch => {
                         if (doMatch) {
-                            adminUserModel.findOneAndUpdate({ _id: savedUser._id }, { new: true }).exec(function (err, savedAdmin) {
+                            const token = jwt.sign({ _id: savedUser._id }, SECRET_KEY, { expiresIn: "24h" })
+                            adminUserModel.findOneAndUpdate({ _id: savedUser._id }, { $push: { JWT_Token: token } }, { new: true }).exec(function (err, savedAdmin) {
                                 if (err) {
                                     return Helper.response(res, 422, 'error', "Something went wrong.");
                                 }
                                 const { _id, Name, Email } = savedAdmin
 
-                                return res.status(200).json({ code: 200, status: 'success', message: "Login Successful.", admindata: { _id, Name, Email } })
+                                return res.status(200).json({ code: 200, status: 'success', message: "Login Successful.", admindata: { _id, Name, Email, token } })
                             })
                         } else {
                             return Helper.response(res, 422, "Invalid Email or password.");
@@ -75,5 +79,49 @@ module.exports = {
             return res.status(500).send(error.message);
         }
     },
+
+    adminLogout: async  (req, res) =>{
+        try {
+            var {_id} = req.admin;
+            const {authorization} = req.headers;
+
+            var token = authorization;
+            adminUserModel.findOneAndUpdate({_id: new mongoose.Types.ObjectId(_id)}, {$pull: {JWT_Token: token}}, {new: true}).exec(function (err, userResult) {
+              if (err) {
+                return Helper.response(res, 422, "Something went wrong.")
+              } else {
+                return Helper.response(res, 200, "Logout successfully.")
+              }
+            });
+          } catch (error) {
+            console.log(error)
+            return Helper.response(res, 500, "Server error.")
+          }
+    },
+
+    resetAdminPassword: async (req, res) =>{
+        try {
+            const { user_id, old_password, new_password } = req.body;
+
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return Helper.response(res, 422, errors.array()[0].msg);
+            }
+
+            const user = await adminUserModel.findById(user_id);
+            const matched = await user.comparePassword(new_password);
+            const oldMatched = await user.comparePassword(old_password);
+            if (matched) {
+                return Helper.response(res, 400, "The new password must be different from the old one!")
+            } else if (oldMatched) {
+                user.Password = new_password;
+                await user.save();
+            } else {
+                return Helper.response(res, 400, "Can not change the password due to bad request!")
+            }
+            return Helper.response(res, 200, "Password changed successfully!");
+        } catch (error) {
+            return Helper.response(res, 500, "Server error.")
+        }
+    }
 }
-//Comments here

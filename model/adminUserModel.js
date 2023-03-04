@@ -29,6 +29,11 @@ const adminUserSchema = new Schema({
     default: "Admin"
   },
 
+  JWT_Token: {
+    type: Array,
+    default: []
+  },
+
   createdDate: { type: Date, default: Date.now }
 });
 
