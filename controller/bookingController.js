@@ -91,6 +91,8 @@ module.exports = {
 
             if (status == "New") {
                 const getBookingData = await bookingModel.find({Status: "Booking Requested"}).skip(startIndex).limit(limit).sort({createdDate: -1})
+
+                const totalBookingDataCount = await bookingModel.countDocuments({Status: "Booking Requested"})
                 if (getBookingData.length > 0) {
                     let newBookingData = [];
                     await Promise.all(getBookingData.map(async (item) => {
@@ -110,7 +112,7 @@ module.exports = {
                         newBookingData.push(rowData)
                     }))
                     if (newBookingData.length > 0) {
-                        return Helper.response(res, 200, "Success", "New booking data fetched successfully", {newBookingData: newBookingData});
+                        return Helper.response(res, 200, "Success", "New booking data fetched successfully", {newBookingData: newBookingData, totalBookingDataCount: totalBookingDataCount});
                     } else {
                         return Helper.response(res, 400, "Error", "New booking not found", {newBookingData: newBookingData});
                     }
@@ -119,6 +121,8 @@ module.exports = {
                 }
             } else if (status == "Confirmed") {
                 const getBookingData = await bookingModel.find({Status: "Booking Confirmed"}).skip(startIndex).limit(limit).sort({createdDate: -1})
+
+                const totalBookingDataCount = await bookingModel.countDocuments({Status: "Booking Confirmed"})
                 if (getBookingData.length > 0) {
                     let confirmedBookingData = [];
                     await Promise.all(getBookingData.map(async (item) => {
@@ -142,7 +146,7 @@ module.exports = {
                         confirmedBookingData.push(rowData)
                     }))
                     if (confirmedBookingData.length > 0) {
-                        return Helper.response(res, 200, "Success", "Confirmed booking data fetched successfully", {confirmedBookingData: confirmedBookingData});
+                        return Helper.response(res, 200, "Success", "Confirmed booking data fetched successfully", {confirmedBookingData: confirmedBookingData, totalBookingDataCount: totalBookingDataCount});
                     } else {
                         return Helper.response(res, 400, "Error", "Confirmed booking not found", {confirmedBookingData: confirmedBookingData});
                     }
@@ -151,6 +155,8 @@ module.exports = {
                 }
             } else if (status == "Cancelled") {
                 const getBookingData = await bookingModel.find({Status: "Booking Cancelled"}).skip(startIndex).limit(limit).sort({createdDate: -1})
+
+                const totalBookingDataCount = await bookingModel.countDocuments({Status: "Booking Cancelled"})
                 if (getBookingData.length > 0) {
                     let cancelledBookingData = [];
                     await Promise.all(getBookingData.map(async (item) => {
@@ -172,7 +178,7 @@ module.exports = {
                         cancelledBookingData.push(rowData)
                     }))
                     if (cancelledBookingData.length > 0) {
-                        return Helper.response(res, 200, "Success", "Cancelled booking data fetched successfully", {cancelledBookingData: cancelledBookingData});
+                        return Helper.response(res, 200, "Success", "Cancelled booking data fetched successfully", {cancelledBookingData: cancelledBookingData, totalBookingDataCount: totalBookingDataCount});
                     } else {
                         return Helper.response(res, 400, "Error", "Cancelled booking not found", {cancelledBookingData: cancelledBookingData});
                     }
@@ -181,8 +187,10 @@ module.exports = {
                 }
             }else{
                 const getBookingData = await bookingModel.find().skip(startIndex).limit(limit).sort({createdDate: -1})
+
+                const totalBookingDataCount = await bookingModel.countDocuments()
                 if (getBookingData.length > 0) {
-                    return Helper.response(res, 200, "Success", "Booking data fetched successfully", {getBookingData: getBookingData});
+                    return Helper.response(res, 200, "Success", "Booking data fetched successfully", {getBookingData: getBookingData, totalBookingDataCount: totalBookingDataCount});
                 } else {
                     return Helper.response(res, 400, "Error", "Booking data not found");
                 }
