@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = process.env.JWT_SECRET;
 const bcrypt = require('bcryptjs');
+const checkValidations = require('../middleware/validation');
 
 module.exports = {
     createAdminUser: async (req, res) => {
@@ -41,6 +42,18 @@ module.exports = {
     adminLogin: async (req, res) => {
         try {
             const { email, password } = req.body;
+
+            let validationStatus = {}
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(email)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "email" })
+            }
+
+            validationStatus = await checkValidations.checkBlank(password)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "password" })
+            }
 
             const errors = validationResult(req.body);
             if (!errors.isEmpty()) {
