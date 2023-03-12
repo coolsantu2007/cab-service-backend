@@ -2,12 +2,69 @@ const bookingModel = require('../model/bookingModel');
 const Helper = require('../configuration/helper');
 const mongoose = require('mongoose');
 const moment = require('moment');
-const ObjectId = mongoose.Types.ObjectId
+const ObjectId = mongoose.Types.ObjectId;
+const checkValidations = require('../middleware/validation');
 
 module.exports = {
     generateBookingRequest: async (req, res) => {
         try {
             const { customer_name, customer_mobile, pickup_address, drop_address, travel_date, pickup_time, car_type } = req.body
+
+            let validationStatus = {}
+
+            //check validation for numeric value, special character & length should be 100 or less
+            validationStatus = await checkValidations.checkValidation('customer_name', customer_name)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "customer_name" })
+            }
+
+            //check validation for special character, 9 digits, number starts with 6, 7, 8, 9
+            validationStatus = await checkValidations.checkValidation('customer_mobile', customer_mobile)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "customer_mobile" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(customer_mobile)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "customer_mobile" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(customer_name)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "customer_name" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(pickup_address)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "pickup_address" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(drop_address)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "drop_address" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(travel_date)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "travel_date" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(pickup_time)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "pickup_time" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(car_type)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "car_type" })
+            }
 
             let bookingId = 'BID' + Helper.generateRandNo()
                 const bookCab = new bookingModel({
@@ -23,7 +80,7 @@ module.exports = {
                 bookCab.save()
 
                 if (bookCab) {
-                    return Helper.response(res, 200, "Success", "Cab booking request sent successfully");
+                    return Helper.response(res, 200, "Success", "Cab booking request sent successfully", {booking_id: bookCab.Booking_id});
                 }else{
                     return Helper.response(res, 400, "Error", "Something went wrong, please try again");
                 }
@@ -36,6 +93,50 @@ module.exports = {
     updateBookingStatus: async (req, res) => {
         try {
             const { booking_id, new_status, driver_name, driver_mobile, estimated_fare, cancellation_reason } = req.body
+
+            let validationStatus = {}
+
+            //check validation for numeric value, special character & length should be 100 or less
+            validationStatus = await checkValidations.checkValidation('driver_name', driver_name)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "driver_name" })
+            }
+
+            //check validation for special character, 9 digits, number starts with 6, 7, 8, 9
+            validationStatus = await checkValidations.checkValidation('driver_mobile', driver_mobile)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "driver_mobile" })
+            }
+
+            //check validation for name should be min 4 and max 100 character
+            validationStatus = await checkValidations.checkStringLength(driver_name, 4, 100)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "driver_name" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(driver_mobile)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "driver_mobile" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(driver_name)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "driver_name" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(estimated_fare)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "estimated_fare" })
+            }
+
+            //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(cancellation_reason)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "cancellation_reason" })
+            }
 
             if (new_status == "Confirm") {
                 const checkBookingId = await bookingModel.findOne({ _id: mongoose.Types.ObjectId(booking_id) })

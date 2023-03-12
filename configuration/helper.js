@@ -24,9 +24,8 @@ helper.response = function (response, status_code, status_name, message, data) {
 };
 
 helper.generateRandNo = () => {
-	let rand_no = Math.random();
-	let num = Math.floor(rand_no * 100000000 + 1);
-	return num; /*8 digit random number*/
+	let num = Math.floor(100000 + Math.random() * 900000)
+	return num; //6 digit random number
 };
 
 module.exports = helper;
