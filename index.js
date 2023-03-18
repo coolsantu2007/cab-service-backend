@@ -4,7 +4,7 @@ const cors = require('cors')
 var path = require('path')
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const NODE_ENV = process.env.NODE_ENV || "development";
+const NODE_ENV = process.env.NODE_ENV || "production";
 const compression = require('compression')
 
 require('dotenv').config({ path: '.env.' + NODE_ENV });
