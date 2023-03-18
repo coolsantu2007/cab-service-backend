@@ -96,7 +96,8 @@ module.exports = {
 
             let validationStatus = {}
 
-            //check validation for numeric value, special character & length should be 100 or less
+            if (new_status == "Confirm") {
+                //check validation for numeric value, special character & length should be 100 or less
             validationStatus = await checkValidations.checkValidation('driver_name', driver_name)
             if (validationStatus && validationStatus.error) {
                 return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "driver_name" })
@@ -132,13 +133,6 @@ module.exports = {
                 return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "estimated_fare" })
             }
 
-            //check validation for check blank
-            validationStatus = await checkValidations.checkBlank(cancellation_reason)
-            if (validationStatus && validationStatus.error) {
-                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "cancellation_reason" })
-            }
-
-            if (new_status == "Confirm") {
                 const checkBookingId = await bookingModel.findOne({ _id: mongoose.Types.ObjectId(booking_id) })
                 if (checkBookingId) {
                     const updateBookingStatus = await bookingModel.updateOne({ _id: mongoose.Types.ObjectId(checkBookingId._id) }, {
@@ -159,6 +153,12 @@ module.exports = {
                     return Helper.response(res, 400, "Error", "Booking id doesn't exists");
                 }
             } else if (new_status == "Cancel") {
+                //check validation for check blank
+            validationStatus = await checkValidations.checkBlank(cancellation_reason)
+            if (validationStatus && validationStatus.error) {
+                return res.status(400).send({ status: "error", message: validationStatus.errorMsg, fieldname: "cancellation_reason" })
+            }
+            
                 const checkBookingId = await bookingModel.findOne({ _id: mongoose.Types.ObjectId(booking_id) })
                 if (checkBookingId) {
                     const updateBookingStatus = await bookingModel.updateOne({ _id: mongoose.Types.ObjectId(checkBookingId._id) }, {

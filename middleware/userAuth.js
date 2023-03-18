@@ -25,13 +25,13 @@ module.exports = {
     const {authorization} = req.headers
 
     if (!authorization) {
-        return Helper.response(res, 401, "you must be logged in");
+        return Helper.response(res, 401, "Login Required");
     }
     const token = authorization
 
     jwt.verify(token, JWT_SECRET, (err, payload) => {
         if (err) {
-            return Helper.response(res, 401, "you must be logged in");
+            return Helper.response(res, 401, "Login Required");
         }
         const {_id} = payload
         adminUserModel.findById(_id).lean().then(admindata => {
