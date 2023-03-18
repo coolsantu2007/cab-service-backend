@@ -6,9 +6,9 @@ var router = express.Router();
 const Auth = middleware.verifyAdminToken
 
 router.post('/create-admin-user',adminUserController.createAdminUser);
-router.post('/admin-login', Auth, adminUserController.adminLogin);
+router.post('/admin-login', adminUserController.adminLogin);
 router.post('/booking-request',bookingController.generateBookingRequest);
-router.post('/update-booking-status', Auth, bookingController.updateBookingStatus);
+router.post('/update-booking-status', bookingController.updateBookingStatus);
 router.get('/get-booking-details', Auth, bookingController.getBookingDetails);
 router.get('/get-booking-details-by-id', Auth, bookingController.getBookingDetailsById);
 router.get('/admin-logout', Auth, adminUserController.adminLogout);
