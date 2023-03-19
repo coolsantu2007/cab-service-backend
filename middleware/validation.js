@@ -84,7 +84,7 @@ module.exports = {
         if (!string) {
             let obj = {
                 error: true,
-                errorMsg: "Field cannot be empty"
+                errorMsg: "Please provide all the details"
             }
             return obj
         }
